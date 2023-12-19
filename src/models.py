@@ -1,5 +1,5 @@
 from sqlalchemy import func
-from db import db
+from src import db
 
 
 class UserModel(db.Model):
@@ -31,4 +31,3 @@ class RecordModel(db.Model):
 
     user = db.relationship('UserModel', back_populates='record')
     category = db.relationship('CategoryModel', back_populates='record')
-
