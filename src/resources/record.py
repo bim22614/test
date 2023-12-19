@@ -1,57 +1,79 @@
 import uuid
 from flask import jsonify, request
-from src import app
+from src import app, db
 from datetime import datetime
+from src.models import RecordModel, UserModel, CategoryModel
+from src.schemas import RecordSchema
+from marshmallow import ValidationError
 
-records = {}
+record_schema = RecordSchema()
 
 
 @app.get('/record/<record_id>')
 def get_record(record_id):
-    if record_id not in records:
-        return jsonify(error=f'Record with {record_id} id does not exist'), 404
-    else:
-        record = records[record_id]
-        return jsonify(record)
+    record = RecordModel.query.get(record_id)
+    try:
+        return jsonify(record_schema.dump(record)), 200
+    except ValidationError as err:
+        return jsonify(err.messages), 400
+
 
 
 @app.delete('/record/<record_id>')
 def delete_record(record_id):
-    if record_id not in records:
-        return jsonify(error=f'Record with {record_id} id does not exist'), 404
-    else:
-        del records[record_id]
-        return jsonify(f"Record deleted by {record_id} id")
+    record = RecordModel.query.get(record_id)
+    try:
+        db.session.delete(record)
+        db.session.commit()
+        return jsonify(record_schema.dump(record)), 200
+    except ValidationError as err:
+        return jsonify(err.messages), 400
+
 
 
 @app.post('/record')
 def create_record():
-    record_id = uuid.uuid4().hex
-    user_id = request.args.get("user_id")
-    category_id = request.args.get("category_id")
-    created_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    cost_amount = request.args.get("cost_amount")
-    record = {
-        "record_id": record_id,
-        "user_id": user_id,
-        "category_id": category_id,
-        "created_time": created_time,
-        "cost_amount": cost_amount
-    }
-    records[record_id] = record
-    return jsonify(record)
+    record_data = request.args
+    try:
+        data = record_schema.load(record_data)
+    except ValidationError as err:
+        return jsonify(err.messages), 400
+
+    data['id'] = uuid.uuid4().hex
+    data['created_at'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    user = UserModel.query.get(record_data['user_id'])
+    category = CategoryModel.query.get(record_data["category_id"])
+    if (user and category):
+        data["user_id"] = user.id
+        data["category_id"] = category.id
+        record = RecordModel(**data)
+    else:
+        return "Incorrect record data", 400
+    try:
+        db.session.add(record)
+        db.session.commit()
+    except Exception as e:
+        return jsonify(error=str(e)), 400
+    return jsonify(record), 200
 
 
 @app.get('/record')
 def get_records():
-    user_id = request.args.get("user_id")
-    category_id = request.args.get("category_id")
+    user_id = request.args.get('user_id')
+    category_id = request.args.get('category_id')
 
-    if not user_id and not category_id:
-        return jsonify(error='Both user_id and category_id are required'), 400
+    if user_id is None and category_id is None:
+        return "Missing parameters", 400
 
-    filtered_records = [record for record in records.values() if
-                        (not user_id or record['user_id'] == user_id) and
-                        (not category_id or record['category_id'] == category_id)]
+    query = RecordModel.query
+    if user_id is not None:
+        query = query.filter_by(user_id=user_id)
+    if category_id is not None:
+        query = query.filter_by(category_id=category_id)
 
-    return jsonify({'data': filtered_records})
+    try:
+        records = query.all()
+    except Exception as e:
+        return jsonify(error=str(e)), 400
+
+    return jsonify(record_schema.dump(records, many=True)), 200
