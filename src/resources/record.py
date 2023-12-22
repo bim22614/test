@@ -18,7 +18,6 @@ def get_record(record_id):
         return jsonify(err.messages), 400
 
 
-
 @app.delete('/record/<record_id>')
 def delete_record(record_id):
     record = RecordModel.query.get(record_id)
@@ -28,7 +27,6 @@ def delete_record(record_id):
         return jsonify(record_schema.dump(record)), 200
     except ValidationError as err:
         return jsonify(err.messages), 400
-
 
 
 @app.post('/record')

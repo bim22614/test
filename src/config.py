@@ -1,0 +1,3 @@
+PROPAGATE_EXCEPTIONS = True
+SQLALCHEMY_DATABASE_URI = 'postgresql://dimas:root123@localhost:5432/backend_lab3'
+SQLALCHEMY_TRACK_MODIFICATIONS = False

@@ -16,4 +16,4 @@ class RecordSchema(Schema):
     user_id = fields.UUID(required=True)
     category_id = fields.UUID(required=True)
     created_at = fields.DateTime(dump_only=True)
-    cost_amount = fields.Float(required=True)
+    cost_amount = fields.Integer(required=True)
