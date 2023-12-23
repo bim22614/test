@@ -7,6 +7,8 @@ class UserModel(db.Model):
 
     id = db.Column(db.String(128), primary_key=True)
     name = db.Column(db.String(128), unique=True, nullable=False)
+    default_currency_id = db.Column(db.String(128), db.ForeignKey('currency.id'))
+    default_currency = db.relationship('Currency', foreign_keys=[default_currency_id])
 
     record = db.relationship('RecordModel', back_populates='user', lazy="dynamic")
 
@@ -33,9 +35,26 @@ class RecordModel(db.Model):
     category_id = db.Column(db.String(128), db.ForeignKey('category.id'), nullable=False)
     user_id = db.Column(db.String(128), db.ForeignKey('user.id'), nullable=False)
     created_at = db.Column(db.DateTime, server_default=func.now(), nullable=False)
+    currency_id = db.Column(db.String(128), db.ForeignKey('currency.id'), nullable=False)
 
     user = db.relationship('UserModel', back_populates='record')
     category = db.relationship('CategoryModel', back_populates='record')
+    currency = db.relationship("CurrencyModel")
 
     def to_dict(self):
-        return {'id': self.id, 'cost_amount': self.cost_amount, 'category_id': self.category_id, 'user_id': self.user_id, 'created_at': self.created_at}
+        return {'id': self.id,
+                'cost_amount': self.cost_amount,
+                'category_id': self.category_id,
+                'user_id': self.user_id,
+                'created_at': self.created_at,
+                'currency_id': self.currency_id}
+
+
+class CurrencyModel(db.Model):
+    __tablename__ = 'currency'
+
+    id = db.Column(db.String(128), primary_key=True)
+    name = db.Column(db.String(128), nullable=False)
+
+    def to_dict(self):
+        return {'id': self.id, 'name': self.name}

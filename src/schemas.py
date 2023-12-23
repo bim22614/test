@@ -17,3 +17,9 @@ class RecordSchema(Schema):
     category_id = fields.UUID(required=True)
     created_at = fields.DateTime(dump_only=True)
     cost_amount = fields.Integer(required=True)
+
+
+class CurrencySchema(Schema):
+    id = fields.UUID(dump_only=True)
+    name = fields.Str(required=True)
+

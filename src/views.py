@@ -1,5 +1,4 @@
 from flask import jsonify, Blueprint
-#from src import app
 from datetime import datetime
 
 
