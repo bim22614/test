@@ -1,20 +1,20 @@
 import uuid
-from flask import jsonify, request
-from src import app, db
+from flask import jsonify, request, Blueprint
+from src import db
 from src.models import CategoryModel
 from src.schemas import CategorySchema
 from marshmallow import ValidationError
 
 category_schema = CategorySchema()
+category_blueprint = Blueprint(name='category', import_name=__name__)
 
-
-@app.get('/category')
+@category_blueprint.get('/category')
 def get_category():
     categories = CategoryModel.query.all()
     return jsonify(category_schema.dump(categories, many=True)), 200
 
 
-@app.post('/category')
+@category_blueprint.post('/category')
 def create_category():
     category_data = request.get_json()
     try:
@@ -28,10 +28,10 @@ def create_category():
         db.session.commit()
     except Exception as e:
         return jsonify(error=str(e)), 400
-    return jsonify(category)
+    return jsonify(category.to_dict())
 
 
-@app.delete('/category/<category_id>')
+@category_blueprint.delete('/category/<category_id>')
 def delete_category(category_id):
     if not uuid.UUID(category_id, version=4):
         return jsonify({"error": "Invalid category_id format"}), 400

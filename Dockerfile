@@ -15,5 +15,7 @@ COPY . /app
 
 ENV TZ=Europe/Kiev
 
+ENV FLASK_APP=src/__init__
 
-CMD flask --app src run -h 0.0.0.0 -p $PORT
+
+CMD flask run -h 0.0.0.0 -p $PORT

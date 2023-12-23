@@ -1,5 +1,5 @@
 from sqlalchemy import func
-from src import db
+from .db import db
 
 
 class UserModel(db.Model):
@@ -10,6 +10,9 @@ class UserModel(db.Model):
 
     record = db.relationship('RecordModel', back_populates='user', lazy="dynamic")
 
+    def to_dict(self):
+        return {'id': self.id, 'name': self.name}
+
 
 class CategoryModel(db.Model):
     __tablename__ = 'category'
@@ -19,6 +22,8 @@ class CategoryModel(db.Model):
 
     record = db.relationship("RecordModel", back_populates="category", lazy="dynamic")
 
+    def to_dict(self):
+        return {'id': self.id, 'name': self.name}
 
 class RecordModel(db.Model):
     __tablename__ = 'record'
@@ -31,3 +36,6 @@ class RecordModel(db.Model):
 
     user = db.relationship('UserModel', back_populates='record')
     category = db.relationship('CategoryModel', back_populates='record')
+
+    def to_dict(self):
+        return {'id': self.id, 'cost_amount': self.cost_amount, 'category_id': self.category_id, 'user_id': self.user_id, 'created_at': self.created_at}

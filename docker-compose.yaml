@@ -13,8 +13,7 @@ services:
  db:
    image: postgres:15.4-alpine3.18
    environment:
-     POSTGRES_USER: root
-     POSTGRES_PASSWORD: root123
-     POSTGRES_DB: backend_lab3
-   ports:
-     - "5432:5432"
+      POSTGRES_DB: backend_lab3
+      POSTGRES_USER: dimas
+      POSTGRES_PASSWORD: root123
+   network_mode: host
