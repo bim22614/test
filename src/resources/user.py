@@ -41,7 +41,7 @@ def create_user():
         db.session.add(user)
         db.session.commit()
     except Exception as e:
-        return jsonify(error=str(e)), 401
+        return jsonify(error=str(e)), 400
     return jsonify(user.to_dict())
 
 

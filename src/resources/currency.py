@@ -32,7 +32,7 @@ def get_all_currency():
     return jsonify(currency_schema.dump(currencies, many=True)), 200
 
 
-@blueprint_currency.delete('currency/<currency_id>')
+@blueprint_currency.delete('/currency/<currency_id>')
 def delete_currency(currency_id):
     if not uuid.UUID(currency_id, version=4):
         return jsonify({"error": "Invalid currency_id format"}), 400

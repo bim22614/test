@@ -15,6 +15,7 @@ COPY . /app
 
 ENV TZ=Europe/Kiev
 
+
 ENV FLASK_APP=src/__init__
 
 
